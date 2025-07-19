@@ -15,19 +15,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.photonvision.vision.objects;
+package org.photonvision.common.hardware.metrics;
 
-import org.photonvision.common.configuration.NeuralNetworkModelManager.Family;
-import org.photonvision.common.configuration.NeuralNetworkPropertyManager.ModelProperties;
+import org.photonvision.common.hardware.metrics.proto.DeviceMetricsProto;
 
-public interface Model {
-    public ObjectDetector load();
-
-    public String getUID();
-
-    public String getNickname();
-
-    public Family getFamily();
-
-    public ModelProperties getProperties();
+public record DeviceMetrics(
+        double cpuTemp,
+        double cpuUtil,
+        String cpuThr,
+        double ramMem,
+        double ramUtil,
+        double gpuMem,
+        double gpuMemUtil,
+        double diskUtilPct,
+        double[] npuUsage,
+        String ipAddress,
+        double uptime) {
+    public static final DeviceMetricsProto proto = new DeviceMetricsProto();
 }
