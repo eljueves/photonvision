@@ -1,0 +1,8 @@
+{
+  "test/openCVHelp_test.py": true,
+  "test/photonCamera_test.py": true,
+  "test/photonPoseEstimator_test.py": true,
+  "test/photonlibpy_test.py": true,
+  "test/simCameraProperties_test.py": true,
+  "test/visionSystemSim_test.py": true
+}
