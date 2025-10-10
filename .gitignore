@@ -149,3 +149,6 @@ dist
 components.d.ts
 photon-server/src/main/resources/web/index.html
 test-resources/
+
+#VS code settings
+.vscode
