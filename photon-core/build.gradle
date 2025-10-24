@@ -64,6 +64,7 @@ dependencies {
     }
 
     testImplementation group: 'org.junit-pioneer' , name: 'junit-pioneer', version: '2.2.0'
+    testImplementation 'com.ctre.phoenix6:wpiapi-java:25.4.0'
 }
 
 task writeCurrentVersion {
