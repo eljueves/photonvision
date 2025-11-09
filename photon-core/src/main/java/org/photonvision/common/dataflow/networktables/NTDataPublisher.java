@@ -182,6 +182,7 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
                         acceptedResult.multiTagResult);
 
         if (pidgey.isConnected()) {
+            trig_ts.heartbeatPublisher.set(1);
             Rotation3d pidgeyHeading =
                     new Rotation3d(
                             pidgey.getRoll().getValue(),
@@ -199,14 +200,17 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
                 trig_ts.targetPitchEntry.set(pidgey.getPitch().getValueAsDouble());
                 trig_ts.targetYawEntry.set(pidgey.getYaw().getValueAsDouble());
             } else {
-                ts.targetPitchEntry.set(0);
-                ts.targetYawEntry.set(0);
-                ts.targetAreaEntry.set(0);
-                ts.targetSkewEntry.set(0);
-                ts.targetPoseEntry.set(new Transform3d());
-                ts.bestTargetPosX.set(0);
-                ts.bestTargetPosY.set(0);
+                trig_ts.targetPitchEntry.set(0);
+                trig_ts.targetYawEntry.set(0);
+                trig_ts.targetAreaEntry.set(0);
+                trig_ts.targetSkewEntry.set(0);
+                trig_ts.targetPoseEntry.set(new Transform3d());
+                trig_ts.bestTargetPosX.set(0);
+                trig_ts.bestTargetPosY.set(0);
             }
+        }
+        else {
+            trig_ts.heartbeatPublisher.set(0);
         }
 
         // random guess at size of the array
