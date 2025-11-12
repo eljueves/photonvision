@@ -208,8 +208,7 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
                 trig_ts.bestTargetPosX.set(0);
                 trig_ts.bestTargetPosY.set(0);
             }
-        }
-        else {
+        } else {
             trig_ts.heartbeatPublisher.set(0);
         }
 
