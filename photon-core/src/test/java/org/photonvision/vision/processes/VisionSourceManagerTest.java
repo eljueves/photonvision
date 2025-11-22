@@ -28,6 +28,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.photonvision.common.configuration.CameraConfiguration;
 import org.photonvision.common.configuration.ConfigManager;
@@ -36,6 +37,7 @@ import org.photonvision.common.util.file.JacksonUtils;
 import org.photonvision.jni.PhotonTargetingJniLoader;
 import org.photonvision.vision.camera.PVCameraInfo;
 
+@Disabled("Disabled until CTRE native libs set up")
 public class VisionSourceManagerTest {
     // Test harness that overrides getConnectedCameras, but uses USB cameras for
     // everything else

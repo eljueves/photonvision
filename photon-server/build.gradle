@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 apply plugin: "com.github.node-gradle.node"
 apply plugin: 'com.gradleup.shadow'
 apply plugin: "application"
@@ -12,6 +14,11 @@ dependencies {
 
     // Needed for Javalin Runtime Logging
     implementation "org.slf4j:slf4j-simple:2.0.7"
+
+    implementation "com.ctre.phoenix6:wpiapi-java:25.4.0"
+
+    runtimeOnly "com.ctre.phoenix6:tools:25.4.0"
+    runtimeOnly "com.ctre.phoenix6:api-cpp:25.4.0"
 }
 
 group = 'org.photonvision'
@@ -142,5 +149,39 @@ deploy {
                 }
             }
         }
+    }
+}
+
+def vendordepDir = file("$projectDir/../vendordeps")
+
+vendordepDir.eachFileMatch(~/.+\.json/) { File vendordep ->
+    def json = new JsonSlurper().parse(vendordep)
+
+    json.mavenUrls.each { repoUrl ->
+        repositories.maven {
+            url = repoUrl
+        }
+    }
+
+    json.dependencies.each { dep ->
+        def coords = "${dep.group}:${dep.artifact}:${dep.version}"
+        if (dep.targets == null) {
+            implementation coords
+        } else {
+            dep.targets.each { t ->
+                def platformCoords = "${coords}:${t.platform}"
+                implementation(platformCoords) {
+                    transitive = false
+                }
+            }
+        }
+    }
+}
+
+test {
+    jvmArgs "-Djava.library.path=${projectDir}/../ctreLibs"  // or wherever Gradle puts CTRE natives
+
+    doFirst {
+        println "java.library.path = ${System.getProperty("java.library.path")}"
     }
 }
