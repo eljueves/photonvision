@@ -1,6 +1,7 @@
 apply plugin: 'edu.wpi.first.WpilibTools'
 
 import java.nio.file.Path
+import groovy.json.JsonSlurper
 
 ext.licenseFile = file("$rootDir/LICENSE")
 apply from: "${rootDir}/shared/common.gradle"
@@ -51,6 +52,8 @@ dependencies {
 
     implementation "org.photonvision:photon-mrcal-java:$mrcalVersion"
 
+    implementation project(':photon-lib')
+
     // Only include mrcal natives on platforms that we build for
     if (!(jniPlatform in [
                 "osxx86-64",
@@ -62,6 +65,20 @@ dependencies {
     }
 
     testImplementation group: 'org.junit-pioneer' , name: 'junit-pioneer', version: '2.2.0'
+
+    implementation "com.ctre.phoenix6:wpiapi-java:25.4.0"
+    implementation "com.ctre.phoenix6:tools:25.4.0"
+    testImplementation "com.ctre.phoenix6:wpiapi-java:25.4.0"
+
+    testImplementation "com.ctre.phoenix6:tools:25.4.0"
+    testImplementation "com.ctre.phoenix6:api-cpp:25.4.0"
+
+    runtimeOnly "com.ctre.phoenix6:tools:25.4.0"
+    runtimeOnly "com.ctre.phoenix6:api-cpp:25.4.0"
+
+    implementation "com.ctre.phoenix6:wpiapi-java:25.4.0"
+    runtimeOnly "com.ctre.phoenix6:wpiapi-cpp:25.4.0"
+    runtimeOnly "com.ctre.phoenix6:tools:25.4.0"
 }
 
 task writeCurrentVersion {
@@ -75,3 +92,37 @@ task writeCurrentVersion {
 sourceSets.main.java.srcDir "${buildDir}/generated/java/"
 
 compileJava.dependsOn writeCurrentVersion
+
+def vendordepDir = file("$projectDir/../vendordeps")
+
+vendordepDir.eachFileMatch(~/.+\.json/) { File vendordep ->
+    def json = new JsonSlurper().parse(vendordep)
+
+    json.mavenUrls.each { repoUrl ->
+        repositories.maven {
+            url = repoUrl
+        }
+    }
+
+    json.dependencies.each { dep ->
+        def coords = "${dep.group}:${dep.artifact}:${dep.version}"
+        if (dep.targets == null) {
+            implementation coords
+        } else {
+            dep.targets.each { t ->
+                def platformCoords = "${coords}:${t.platform}"
+                implementation(platformCoords) {
+                    transitive = false
+                }
+            }
+        }
+    }
+}
+
+test {
+    jvmArgs "-Djava.library.path=${projectDir}/../ctreLibs"  // or wherever Gradle puts CTRE natives
+
+    doFirst {
+        println "java.library.path = ${System.getProperty("java.library.path")}"
+    }
+}
