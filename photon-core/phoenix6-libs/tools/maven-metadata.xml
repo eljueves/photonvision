@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.ctre.phoenix6</groupId>
+  <artifactId>tools</artifactId>
+  <versioning>
+    <release>26.1.0</release>
+    <versions>
+      <version>26.1.0</version>
+    </versions>
+    <lastUpdated>20260108220445</lastUpdated>
+  </versioning>
+</metadata>

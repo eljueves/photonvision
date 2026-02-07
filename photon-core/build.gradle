@@ -17,7 +17,17 @@ def nativeTasks = wpilibTools.createExtractionTasks {
 
 nativeTasks.addToSourceSetResources(sourceSets.main)
 
+def phoenixLibVersion = "26.1.0"
+def phoenixLibsDir = "phoenix6-libs"
+def phoenixWPIJavaDir = "${phoenixLibsDir}/wpiapi-java/${phoenixLibVersion}"
+
 dependencies {
+    implementation project(':photon-lib')
+    implementation files("${phoenixWPIJavaDir}/wpiapi-java-${phoenixLibVersion}.jar")
+    implementation files("${phoenixWPIJavaDir}/wpiapi-java-${phoenixLibVersion}-javadoc.jar")
+    implementation files("${phoenixWPIJavaDir}/wpiapi-java-${phoenixLibVersion}-sources.jar")
+    // Link the native zips so the build system can extract the .dll / .so files
+
     wpilibNatives project(path: ':photon-targeting', configuration: 'wpilibNatives')
     wpilibNatives wpilibTools.deps.wpilib("wpimath")
     wpilibNatives wpilibTools.deps.wpilib("wpinet")
@@ -77,3 +87,44 @@ task writeCurrentVersion {
 sourceSets.main.java.srcDir "${buildDir}/generated/java/"
 
 compileJava.dependsOn writeCurrentVersion
+
+
+def nativeExtractDir = "$buildDir/native-libs"
+
+task extractPhoenixNatives(type: Copy) {
+    // 1. Recursively find every .zip in the phoenix-libs folder
+    // The '**/*.zip' pattern tells Gradle to look in all subdirectories
+    def zipFiles = fileTree(dir: "${projectDir}/${phoenixLibsDir}", include: "**/*.zip")
+
+    // 2. Map those zips into zipTrees for extraction
+    from zipFiles.collect { zipTree(it) }
+
+    // 3. Set the output directory
+    into nativeExtractDir
+
+    // 4. THE FLATTENER: For every file found inside a zip...
+    eachFile { details ->
+        // Force the destination path to just be the filename
+        // This strips away any 'windows/', 'linux/', or 'x86_64/' subfolders
+        details.path = details.name
+    }
+
+    // 5. Cleanup: Don't copy the empty original folders
+    includeEmptyDirs = false
+
+    // 6. Overwrite strategy (if you have multiple zips with same filenames)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+// Keep these lines as they were to ensure the task runs
+compileJava.dependsOn extractPhoenixNatives
+
+tasks.withType(JavaExec) {
+    dependsOn extractPhoenixNatives
+    systemProperty "java.library.path", file(nativeExtractDir).absolutePath
+}
+
+test {
+    dependsOn extractPhoenixNatives
+    systemProperty "java.library.path", file(nativeExtractDir).absolutePath
+}
